@@ -12,6 +12,8 @@ except socket.error:
     sys.exit()
 client_sock.connect((server_ip, int(server_port)))
 
+guesses = []
+
 while True:
     server_msg = client_sock.recv(1024)
     msg_flag = struct.unpack('B', server_msg[0])[0]
@@ -21,19 +23,23 @@ while True:
         enc_msg = struct.unpack('{}s'.format(word_length * 2), server_msg[3: 3 + (word_length * 2)])[0]
         inc_guesses = struct.unpack('{}s'.format(num_inc_guesses * 2), server_msg[3 + (word_length * 2):])[0]
 
-        print(enc_msg + '\n')
-        print('Incorrect Guesses: ' + inc_guesses + '\n')
+        print(enc_msg)
+        print('Incorrect Guesses: ' + inc_guesses)
 
         valid_input = False
         user_input = None
         while valid_input is False:
             user_input = raw_input('Letter to guess: ')
+            print('\n')
             if len(user_input) > 1 or not user_input.isalpha():
                 print("Error! Please guess one letter.\n")
             else:
                 valid_input = True
-        if not user_input.islower():
-            user_input = user_input.lower()
+            if not user_input.islower():
+                user_input = user_input.lower()
+            if user_input in guesses:
+                print("Error! Letter " + user_input + " has been guessed before, please guess another letter.\n")
+        guesses.append(user_input)
         fmt = 'B{}s'.format(len(user_input))
         client_struct = struct.pack(fmt, len(user_input), user_input)
         client_sock.sendall(client_struct)

@@ -38,6 +38,7 @@ except socket.error:
     sys.exit()
 
 server_sock.listen(10)
+num_clients = 0
 
 def thread(client_connect):
     word = np.random.choice(word_dict, 1)[0]
@@ -98,11 +99,9 @@ def thread(client_connect):
             client_connect.sendall(struct_con)
             enc_word = curr_enc_word
 
-
     client_connect.close()
+    print("End the connection from {} : {}".format(addr[0], str(addr[1])))
 
-
-num_clients = 0
 while True:
     client_conn, addr = server_sock.accept()
     if client_conn and addr:
