@@ -49,33 +49,18 @@ def thread(client_connect):
         enc_word.append('_ ')
     enc_word = ''.join(enc_word)
 
-
-
-    start_msg = 'Ready to start the game? (y/n): '
-    # start_msg_flag = chr(9)
-    # start_msg_ascii = start_msg_flag + start_msg
-
-    fmt = 'B{}s'.format(len(start_msg))
-    victory_struct = struct.pack(fmt, 9, start_msg)
-
-    client_connect.sendall(victory_struct)
-
     inc_guesses = []
     cor_guesses = []
     cor_count = 0
     while True:
         client_msg = client_connect.recv(1024)
         client_msg_flag = struct.unpack('B', client_msg[0])[0]
-        if client_msg_flag is 9:
-            resp = struct.unpack('{}s'.format(1), client_msg[1])[0]
-            if resp == 'n':
-                client_connect.close()
-            elif resp == 'y':
-                fmt = 'BBB{}s{}s'.format(len(enc_word), len(inc_guesses * 2))
-                struct_con = struct.pack(fmt, 0, len(word), len(inc_guesses), enc_word, '')
-                client_connect.sendall(struct_con)
+        guessed_letter = struct.unpack('{}s'.format(1), client_msg[1])[0]
+        if client_msg_flag is 0:
+            fmt = 'BBB{}s{}s'.format(len(enc_word), len(inc_guesses * 2))
+            struct_con = struct.pack(fmt, 0, len(word), len(inc_guesses), enc_word, '')
+            client_connect.sendall(struct_con)
         else:
-            guessed_letter = client_msg[1]
             curr_enc_word = decode_word(word, enc_word, guessed_letter)
             if guessed_letter not in word and (guessed_letter + ' ') not in inc_guesses:
                 inc_guesses.append(guessed_letter + ' ')

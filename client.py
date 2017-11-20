@@ -12,6 +12,18 @@ except socket.error:
     sys.exit()
 client_sock.connect((server_ip, int(server_port)))
 
+ready_ans = raw_input('Ready to start the game? (y/n): ')
+
+
+if not ready_ans.islower():
+    user_input = ready_ans.lower()
+if ready_ans != 'y':
+    client_sock.close()
+else:
+    fmt = 'B{}s'.format(len(' '))
+    client_struct = struct.pack(fmt, 0, ' ')
+    client_sock.sendall(client_struct)
+
 guesses = []
 
 while True:
@@ -43,19 +55,6 @@ while True:
         fmt = 'B{}s'.format(len(user_input))
         client_struct = struct.pack(fmt, len(user_input), user_input)
         client_sock.sendall(client_struct)
-    elif msg_flag is 9:
-        start_msg = struct.unpack('{}s'.format(len(server_msg[1:])), server_msg[1:])[0]
-        print(start_msg)
-        user_input = raw_input('')
-        if not user_input.islower():
-            user_input = user_input.lower()
-        if user_input != 'y':
-            client_sock.close()
-            break
-        else:
-            fmt = 'B{}s'.format(len(user_input))
-            client_struct = struct.pack(fmt, 9, user_input)
-            client_sock.sendall(client_struct)
     else:
         enc_msg = struct.unpack('{}s'.format(len(server_msg[1:])), server_msg[1:])[0]
         print(enc_msg)
