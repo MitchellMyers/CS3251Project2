@@ -24,10 +24,6 @@ def encode_word(word):
         enc_word_list[i] = '_'
     return ''.join(enc_word_list)
 
-# def packetize(msg):
-#     msg_len = len(msg)
-#     return struct.pack('B{}s'.format(msg_len), msg_len, msg)
-
 
 
 server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,6 +37,7 @@ server_sock.listen(10)
 num_clients = 0
 
 def thread(client_connect):
+    global num_clients
     word = np.random.choice(word_dict, 1)[0]
     print('\n' + word)
 
@@ -54,7 +51,11 @@ def thread(client_connect):
     cor_count = 0
     while True:
         client_msg = client_connect.recv(1024)
-        client_msg_flag = struct.unpack('B', client_msg[0])[0]
+        #try to unpack. if exception, this means server overload. -> break
+        try:
+            client_msg_flag = struct.unpack('B', client_msg[0])[0]
+        except:
+            break
         guessed_letter = struct.unpack('{}s'.format(1), client_msg[1])[0]
         if client_msg_flag is 0:
             fmt = 'BBB{}s{}s'.format(len(enc_word), len(inc_guesses * 2))
@@ -83,17 +84,25 @@ def thread(client_connect):
             struct_con = struct.pack(fmt, 0, len(word), len(inc_guesses), curr_enc_word, ''.join(inc_guesses))
             client_connect.sendall(struct_con)
             enc_word = curr_enc_word
-
+    num_clients -= 1
     client_connect.close()
+
+    # Todo this below doesnt show the right addr
     print("End the connection from {} : {}".format(addr[0], str(addr[1])))
 
 while True:
     client_conn, addr = server_sock.accept()
+
+    #server is overloaded
+    if client_conn and addr and num_clients is 3:
+        serv_overload = 'Server overloaded!'
+        so_struct_fmt = 'B{}s'.format(len(serv_overload))
+        so_struct = struct.pack(so_struct_fmt, len(serv_overload), serv_overload)
+        client_conn.sendall(so_struct)
+
+    #allow new client to connect and play
     if client_conn and addr:
         num_clients += 1
-    start_new_thread(thread, (client_conn,))
-    print("Get connected from {} : {}".format(addr[0], str(addr[1])))
-    if num_clients > 3:
-        break
+        print("Get connected from {} : {}".format(addr[0], str(addr[1])))
+        start_new_thread(thread, (client_conn,))
 
-server_sock.close()
