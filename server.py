@@ -5,9 +5,8 @@ import numpy as np
 import struct
 
 port_num = sys.argv[1]
-# words_file = open(sys.argv[1], 'r') if sys.argv[1] is not None else None
-word_dict = ['panda', 'snake', 'dog', 'chimpanzee', 'giraffe', 'donkey', 'lion', 'flamingo', 'koala', 'horse',
-             'gorilla', 'caterpillar', 'spider', 'mouse', 'eagle']
+word_dict = ['panda', 'snake', 'dog', 'rhino', 'giraffe', 'donkey', 'lion', 'flamingo', 'koala', 'horse',
+             'gorilla', 'buffalo', 'spider', 'mouse', 'eagle']
 
 
 def decode_word(word, enc_word, letter):
@@ -36,10 +35,9 @@ except socket.error:
 server_sock.listen(10)
 num_clients = 0
 
-def thread(client_connect):
+def thread(client_connect, addr):
     global num_clients
     word = np.random.choice(word_dict, 1)[0]
-    print('\n' + word)
 
     enc_word = []
     for i in range(len(word)):
@@ -85,10 +83,8 @@ def thread(client_connect):
             client_connect.sendall(struct_con)
             enc_word = curr_enc_word
     num_clients -= 1
-    client_connect.close()
-
-    # Todo this below doesnt show the right addr
     print("End the connection from {} : {}".format(addr[0], str(addr[1])))
+    client_connect.close()
 
 while True:
     client_conn, addr = server_sock.accept()
@@ -104,5 +100,5 @@ while True:
     if client_conn and addr:
         num_clients += 1
         print("Get connected from {} : {}".format(addr[0], str(addr[1])))
-        start_new_thread(thread, (client_conn,))
+        start_new_thread(thread, (client_conn, addr))
 
