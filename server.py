@@ -5,8 +5,24 @@ import numpy as np
 import struct
 
 port_num = sys.argv[1]
-word_dict = ['panda', 'snake', 'dog', 'rhino', 'giraffe', 'donkey', 'lion', 'flamingo', 'koala', 'horse',
-             'gorilla', 'buffalo', 'spider', 'mouse', 'eagle']
+word_dict = []
+try:
+	#check if argument is there
+	file_name = sys.argv[2]
+
+	#perform I/O
+	f = open(str(file_name), "r")
+	content_list = []
+	for line in f:
+		content_list.append(line.strip('\n'))
+	content_list[:] = [i for i in content_list if i != '']
+
+	#populate word dict
+	for i in range(1,len(content_list)):
+		word_dict.append(content_list[i])
+except:
+	word_dict = ['panda', 'snake', 'dog', 'rhino', 'giraffe', 'donkey', 'lion', 'flamingo', 'koala', 'horse',
+	             'gorilla', 'buffalo', 'spider', 'mouse', 'eagle']
 
 
 def decode_word(word, enc_word, letter):
