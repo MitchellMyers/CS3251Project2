@@ -1,5 +1,9 @@
 # CS3251Project2
 
+We ran the code using the following specifications in a Unix environment:
+    - python version = 2.7.10
+    - numpy version = 1.12.0
+
 High Level Implementation Idea:
 	Mitch and I followed the general game flow of hangman for our implementation. In a very high level sense, the implementation idea is below.
 	
@@ -25,9 +29,10 @@ We both collaborated on the code implementation, debugging and write up.
 How to run code:
 
 Navigate to main directory:
-	
-	To install dependencies:
-		make
+
+	(if you don't have numpy installed, then run this)
+        To install dependencies:
+            make
 
 	To run server (if word dictionary is included, .txt file must be in same directory as server.py):
 		python server.py [port num] [optional- word_dictionary file name]
