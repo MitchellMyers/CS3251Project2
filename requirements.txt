@@ -1,1 +1,3 @@
+We ran the code using the following specifications in a Unix environment:
+python==2.7.10
 numpy==1.12.0
